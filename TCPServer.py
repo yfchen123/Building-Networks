@@ -29,7 +29,8 @@ while 1: # Loop forever
 
      #connectionSocket.send(b'HTTP/1.0 200 OK\n\n')
 
-     #message = connectionSocket.recv(1024)
+     message = connectionSocket.recv(1024).decode()
+     print(message)
      #filename = message.split()[1]
      f = open(filename)
      outputdata = f.read()
