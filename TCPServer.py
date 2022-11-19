@@ -14,7 +14,7 @@ serverSocket = socket(AF_INET,SOCK_STREAM)
 #serverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 
 # Bind the server port to the socket
-serverSocket.bind((gethostname() ,serverPort))
+serverSocket.bind(("" ,serverPort))
 
 # Server begins listerning foor incoming TCP connections
 serverSocket.listen(1)
