@@ -1,5 +1,6 @@
 # Include Python's Socket Library
 from socket import *
+from os import path
 
 # Specify Server Port
 serverPort = 8080
@@ -24,6 +25,15 @@ while True: # Loop forever
     # Read from socket (but not address as in UDP)
     page = connectionSocket.recv(1024).decode()
     filename = page.split(" ")[1]
+
+    #for testing purposes
+    #filename = "file.txt"
+
+    #checking for the existence of the file
+    '''if(not str(path.exists(filename))):
+        connectionSocket.send(b'HTTP/1.0 404 Not Found\r\n\r\n')
+        # Close connection as the file does not exist
+        connectionSocket.close()'''
     
     try:
         file = open("." + filename)
