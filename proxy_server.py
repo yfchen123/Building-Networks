@@ -5,9 +5,10 @@ SERVER_HTTP_PROCTCOL = "http://"
 SERVER_URL = "0.0.0.0"
 SERVER_PORT = 8000
 PROXY_PORT = 8001
+CACHE_DICT = {}
 
 def main():
-    # Define socket host and port
+    
 
     # Initialize socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -64,30 +65,23 @@ def fetch_file(filename):
 
 
 def fetch_from_cache(filename):
-    try:
-        # Check if we have this file locally
-        with open(f"./cache/{filename}") as f:
-            content = f.read()
-        return content
-    except IOError:
+    if filename in CACHE_DICT:
+        return CACHE_DICT[filename]
+    else:
         return None
 
 
 def fetch_from_server(filename):
     url = f"{SERVER_HTTP_PROCTCOL}{SERVER_URL}:{SERVER_PORT}{filename}"
     q = Request(url)
-
     response = urlopen(q)
-    # Grab the header and content from the server req
-    response_headers = response.info()
     content = response.read().decode('utf-8')
     return content
 
 
 def save_in_cache(filename, content):
     print('Saving a copy of {} in the cache'.format(filename))
-    with open('cache' + filename, 'w') as cached_file:
-        cached_file.write(content)
+    CACHE_DICT[filename] = content
 
 if __name__ == '__main__':
     main()
