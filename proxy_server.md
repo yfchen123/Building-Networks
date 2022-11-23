@@ -5,3 +5,9 @@ A web server refers to software and hardware which uses the Hypertext Transfer P
 
 # What is the function of a proxy server?
 One of the most critical functions of a proxy server is caching. A proxy server caches previously requested files and returns them to a client directly when they are requested again. With the proxy server, the server and network load will be released.
+
+# Test procedure
+The screenshot below shows that the initial HTTP request took more than 10 times than the second request.
+This is because the initial request went to the main server to grab the html file, but the second request used cached data froom the proxy server
+
+![test_procedure](time_difference.png)
