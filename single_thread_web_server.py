@@ -3,7 +3,6 @@ import os
 from socket import *
 from os import path
 from datetime import datetime
-import time
 
 # Specify Server Port
 serverPort = 8080
@@ -12,7 +11,6 @@ serverPort = 8080
 serverSocket = socket(AF_INET,SOCK_STREAM)
 
 # Bind the server port to the socket
-# NOTE: I have to put in my IP to get it to work on my device. If I just put '' it only works on other devices on my network.
 serverSocket.bind(("" ,serverPort))
 
 # Server begins listerning foor incoming TCP connections
@@ -66,8 +64,7 @@ while True: # Loop forever
                 connectionSocket.send(b'HTTP/1.0 200 OK\r\n\r\n')
 
                 #Send the content of the requested file to the client
-                for i in range(0, len(contents)):
-                    connectionSocket.send(contents[i].encode())
+                connectionSocket.sendall(contents.encode())
     except:
         connectionSocket.send(b'HTTP/1.0 400 Bad request\r\n\r\n')
     finally: 
