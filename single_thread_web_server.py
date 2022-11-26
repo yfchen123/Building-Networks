@@ -1,72 +1,98 @@
-# Include Python's Socket Library
-import os
 from socket import *
-from os import path
-from datetime import datetime
+import time
+from os import path, rename
 
-# Specify Server Port
-serverPort = 8080
+SERVER_HOST = '0.0.0.0'
+SERVER_PORT = 8000
+MAXIMUM_LITSTEN = 5
 
-# Create TCP welcoming socket
-serverSocket = socket(AF_INET,SOCK_STREAM)
+RESPONSE_CODES = {
+    "200": 'HTTP/1.0 200 OK\r\n\r\n',
+    "304": 'HTTP/1.0 304 NOT MODIFIED',
+    "400": 'HTTP/1.0 400 BAD REQUEST\r\n\r\n 400: Bad Request',
+    "404": 'HTTP/1.0 404 NOT FOUND\r\n\r\n 404: File Not Found',
+    "408": 'HTTP/1.0 408 REQUEST TIMED OUT\r\n\r\n 408: Request Timed Out'
+}
 
-# Bind the server port to the socket
-serverSocket.bind(("" ,serverPort))
 
-# Server begins listerning foor incoming TCP connections
-serverSocket.listen(1)
-print ('The server is ready to receive')
+def is_modified_since(headers, filepath):
+    '''
+    Check if http header has If-Modified-Since 
+    and last changed file datetime is bigger than that
+    '''
+    for line in headers:
+        if "If-Modified-Since:" in line:
+            modified_time = time.strptime(line[19:48], '%a, %d %b %Y %H:%M:%S %Z')
+            file_time = time.localtime(path.getmtime(filepath))
+            return False if modified_time >= file_time else True
+    return True
 
-while True: # Loop forever
-    # Server waits on accept for incoming requests.
-    # New socket created on return
-    connectionSocket, addr = serverSocket.accept()
 
-    # Read from socket (but not address as in UDP)
-    page = connectionSocket.recv(1024).decode()
-    print(page)
+def handle_request(client_connection):
+        
+    start_time = time.time()
+    request = client_connection.recv(1024).decode()
+    end_time = time.time()
+    
+    # Parse HTTP header
+    headers = request.split('\n')
+    top_header = headers[0].split()
+    filename = top_header[1]
+    filepath = f".{filename}"
+    
+    # [408 response] Check if request took longer than 5 seconds.
+    if end_time - start_time > 5:
+        return RESPONSE_CODES["408"]
 
-    #Get the current time
-    currentTime = datetime.now()
+    # [404 response] Check if the requested file exists.
+    if(not path.exists(filepath) or filepath == "./"):
+        return RESPONSE_CODES["404"]
 
+    # [304 response] Check if the requested file has been updated since "If-Modified-Since"
+    if not is_modified_since(headers, filepath):
+        date_string = time.strftime('%a, %d %b %Y %H:%M:%S %Z', time.localtime())
+        return f"{RESPONSE_CODES['304']}\r\nDate:{date_string}\r\n\r\n"
+  
+    # 400 TEST PURPOSE 
+    # rename(filepath, "./return400error.html")
+    
+    # [200 response] 
+    with open(filepath) as f:
+        content = f.read()
+        return f"{RESPONSE_CODES['200']}\r\n\r\n{content}"
+        
+        
+def reply_to_client(connection_socket):
     try:
-        filename = "." + page.split(" ")[1]
-
-        #Checking for the existence of the file
-        if(not path.exists(filename)):
-            connectionSocket.send(b'HTTP/1.0 404 Not Found\r\n\r\n')
-        else: 
-            #Check if the file has been modified.
-            lastModifiedTime = os.path.getmtime(filename)
-            time = datetime.fromtimestamp(lastModifiedTime)
-
-            #If the difference between currentTime and lastModifiedTime 
-            # is greater than 600 seconds than send not modified message feel free to change this value.
-            #currently does not work for some unknown reason.
-            '''timeDiff = currentTime - time
-            if(timeDiff.total_seconds() > 600):
-                connectionSocket.send(b'HTTP/1.0 304 Not Modified\r\n\r\n')'''         
-            
-            #open the file for reading
-            file = open(filename)
-            contents = file.read()
-            file.close()
-
-            #Find duration of request
-            endTime = datetime.now()
-            timeout = endTime - currentTime
-
-            #Check if request took longer than 5 seconds. If so send 408 response.
-            if(timeout.total_seconds() > 5):
-                connectionSocket.send(b'HTTP/1.0 408 Request Timed Out\r\n\r\n')
-            else:
-                #Send one HTTP header line into socket
-                connectionSocket.send(b'HTTP/1.0 200 OK\r\n\r\n')
-
-                #Send the content of the requested file to the client
-                connectionSocket.sendall(contents.encode())
+        response = handle_request(connection_socket)
+    # [400 response] Chekc if anything goes wrong during handle_request()
     except:
-        connectionSocket.send(b'HTTP/1.0 400 Bad request\r\n\r\n')
-    finally: 
-        # Close connection to client (but not welcoming socket)
-        connectionSocket.close()
+        response = RESPONSE_CODES['400']
+    connection_socket.sendall(response.encode())
+    connection_socket.close()
+    
+    
+def open_socket(host, port, max_connection):
+    server_socket = socket(AF_INET, SOCK_STREAM)
+    # This prevents a connection error when attempting to open port right after closing it
+    server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    server_socket.bind((host, port))
+    server_socket.listen(max_connection)
+    print('Listening on port %s ...' % SERVER_PORT)
+    return server_socket
+
+
+def main():
+    # Start the Server
+    server_socket = open_socket(SERVER_HOST, SERVER_PORT, MAXIMUM_LITSTEN)
+    
+    while True:
+        # Wait for client connection and get the client request
+        client_connection, client_address = server_socket.accept()
+        reply_to_client(client_connection)
+
+    # Close the Server
+    server_socket.close()
+
+if __name__ == "__main__":
+    main()
