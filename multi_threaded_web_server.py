@@ -64,7 +64,7 @@ def tcp_server_thread(connection_socket):
     
     try:
         response = get_response(connection_socket)
-    # [400 response] Chekc if anything goes wrong during get_response()
+    # [400 response] Check if anything goes wrong during get_response()
     except:
         response = RESPONSE_CODES['400']
     print(response)
@@ -97,9 +97,6 @@ def main():
         # Wait for client connection and get the client request
         client_connection, client_address = server_socket.accept()
         start_new_thread(tcp_server_thread, (client_connection,))
-
-    # Close the Server
-    server_socket.close()
 
 
 if __name__ == "__main__":
