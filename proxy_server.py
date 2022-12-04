@@ -8,7 +8,7 @@ PROXY_PORT = 8001
 CACHE_DICT = {}
 
 def fetch_file(filename):
-    # Let's try to read the file locally first
+    # Try to fetch the file from the cache
     file_from_cache = fetch_from_cache(filename)
 
     if file_from_cache:
@@ -18,7 +18,8 @@ def fetch_file(filename):
         print('Not in cache. Fetching from server.')
         file_from_server = fetch_from_server(filename)
 
-        if file_from_server != 'HTTP/1.0 404 Not Found\r\n\r\nFile Not Found':
+        # Cache the contents if found
+        if file_from_server != 'HTTP/1.0 404 NOT FOUND\r\n\r\n 404: File Not Found':
             save_in_cache(filename, file_from_server)
             return file_from_server
         else:

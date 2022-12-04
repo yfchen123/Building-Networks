@@ -65,7 +65,7 @@ def handle_request(client_connection):
 def reply_to_client(connection_socket):
     try:
         response = handle_request(connection_socket)
-    # [400 response] Chekc if anything goes wrong during handle_request()
+    # [400 response] Check if anything goes wrong during handle_request()
     except:
         response = RESPONSE_CODES['400']
     connection_socket.sendall(response.encode())

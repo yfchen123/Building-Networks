@@ -14,7 +14,7 @@ HTTP_REQUEST = """GET /test.html HTTP/1.1
 with socket(AF_INET, SOCK_STREAM) as s:
     start = time.time()
     s.connect((SERVER_URL, SERVER_PORT))
-    time.sleep(6)
+    # time.sleep(6)
     s.sendall(str.encode(HTTP_REQUEST))
     data = s.recv(1024)
     print(f'------time taken {(time.time()-start)*1000} ms------\n') 
