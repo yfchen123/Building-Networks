@@ -109,7 +109,9 @@ def tcp_server_thread(worker_port):
         if not request:
             continue
         
-        print(f"Thread ID: {threading.get_ident()}, Started at {worker_address}")
+        # Test purpose only
+        # print(f"Thread ID: {threading.get_ident()}, Started at {worker_address}")
+        
         try:
             response = handle_request(request, start_time, end_time)
         # [400 response] Check if anything goes wrong during handle_request()
@@ -132,7 +134,6 @@ def open_socket(host, port, max_connection):
     server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     server_socket.bind((host, port))
     server_socket.listen(max_connection)
-    # print('Listening on port %s ...' % port)
     return server_socket
     
 
