@@ -8,7 +8,7 @@ import threading
 
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 8000
-MAXIMUM_LITSTEN = 1000
+MAXIMUM_LISTEN = 1000
 WORK_PORT_POOL = [i for i in range(9000, 9200)]
 IN_USE_PORT = []
 LOCK = threading.Lock()
@@ -99,7 +99,7 @@ def return_port_number(port_number):
     
 def tcp_server_thread(worker_port):
     # Open up a new socket for request handling
-    worker_socket = open_socket(SERVER_HOST, worker_port, MAXIMUM_LITSTEN)
+    worker_socket = open_socket(SERVER_HOST, worker_port, MAXIMUM_LISTEN)
     
     while True:
         worker_connection, worker_address = worker_socket.accept()
@@ -172,7 +172,7 @@ def tcp_client_thread(host, port, fixed_port_client_connection):
 
 def main():
     # Start the Server
-    master_socket = open_socket(SERVER_HOST, SERVER_PORT, MAXIMUM_LITSTEN)
+    master_socket = open_socket(SERVER_HOST, SERVER_PORT, MAXIMUM_LISTEN)
     print("Fixed Server Started")
     while True:
         # Wait for client connection and get the client request

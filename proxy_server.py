@@ -1,7 +1,7 @@
 import socket
 from urllib.request import Request, urlopen
 
-SERVER_HTTP_PROCTCOL = "http://"
+SERVER_HTTP_PROTOCOL = "http://"
 SERVER_URL = "0.0.0.0"
 SERVER_PORT = 8000
 PROXY_PORT = 8001
@@ -34,7 +34,7 @@ def fetch_from_cache(filename):
 
 
 def fetch_from_server(filename):
-    url = f"{SERVER_HTTP_PROCTCOL}{SERVER_URL}:{SERVER_PORT}{filename}"
+    url = f"{SERVER_HTTP_PROTOCOL}{SERVER_URL}:{SERVER_PORT}{filename}"
     q = Request(url)
     response = urlopen(q)
     content = response.read().decode('utf-8')

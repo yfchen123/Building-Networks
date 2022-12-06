@@ -1,10 +1,10 @@
 from socket import *
 import time
-from os import path, rename
+from os import path
 
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 8000
-MAXIMUM_LITSTEN = 5
+MAXIMUM_LISTEN = 5
 
 RESPONSE_CODES = {
     "200": 'HTTP/1.0 200 OK\r\n\r\n',
@@ -83,8 +83,9 @@ def open_socket(host, port, max_connection):
 
 
 def main():
-    # Start the Server
-    server_socket = open_socket(SERVER_HOST, SERVER_PORT, MAXIMUM_LITSTEN)
+    # Start the server
+    server_socket = open_socket(SERVER_HOST, SERVER_PORT, MAXIMUM_LISTEN
+)
     
     while True:
         # Wait for client connection and get the client request
